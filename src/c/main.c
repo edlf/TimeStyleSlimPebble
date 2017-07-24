@@ -15,12 +15,6 @@ static bool isPhoneConnected;
 // current time service subscription
 static bool updatingEverySecond;
 
-void update_clock();
-void redrawScreen();
-void tick_handler(struct tm *tick_time, TimeUnits units_changed);
-void bluetoothStateChanged(bool newConnectionState);
-
-
 void update_clock() {
   time_t rawTime;
   struct tm* timeInfo;
@@ -30,6 +24,29 @@ void update_clock() {
 
   ClockArea_update_time(timeInfo);
   Sidebar_updateTime(timeInfo);
+}
+
+void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+  // every hour, if requested, vibrate
+  if(!quiet_time_is_active() && tick_time->tm_sec == 0) {
+    if(globalSettings.hourlyVibe == VIBE_EVERY_HOUR) { // hourly vibes only
+      if(tick_time->tm_min == 0) {
+        vibes_double_pulse();
+      }
+    } else if(globalSettings.hourlyVibe == VIBE_EVERY_HALF_HOUR) {  // hourly and half-hourly
+      if(tick_time->tm_min == 0) {
+        vibes_double_pulse();
+      } else if(tick_time->tm_min == 30) {
+        vibes_short_pulse();
+      }
+    }
+  }
+
+  update_clock();
+
+  // redraw all screen
+  Sidebar_redraw();
+  ClockArea_redraw();
 }
 
 /* forces everything on screen to be redrawn -- perfect for keeping track of settings! */
@@ -74,30 +91,6 @@ static void main_window_load(Window *window) {
 static void main_window_unload(Window *window) {
   ClockArea_deinit();
   Sidebar_deinit();
-}
-
-
-void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-  // every hour, if requested, vibrate
-  if(!quiet_time_is_active() && tick_time->tm_sec == 0) {
-    if(globalSettings.hourlyVibe == VIBE_EVERY_HOUR) { // hourly vibes only
-      if(tick_time->tm_min == 0) {
-        vibes_double_pulse();
-      }
-    } else if(globalSettings.hourlyVibe == VIBE_EVERY_HALF_HOUR) {  // hourly and half-hourly
-      if(tick_time->tm_min == 0) {
-        vibes_double_pulse();
-      } else if(tick_time->tm_min == 30) {
-        vibes_short_pulse();
-      }
-    }
-  }
-
-  update_clock();
-
-  // redraw all screen
-  Sidebar_redraw();
-  ClockArea_redraw();
 }
 
 void bluetoothStateChanged(bool newConnectionState) {
@@ -198,4 +191,5 @@ int main(void) {
   init();
   app_event_loop();
   deinit();
+  return 0;
 }
