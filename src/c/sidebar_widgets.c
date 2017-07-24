@@ -22,12 +22,9 @@ GFont currentSidebarFont;
 GFont batteryFont;
 
 // the date and time strings
-#define DAY_NUM_SIZE  3
-#define WEEK_NUM_SIZE 3
-#define SECS_NUM_SIZE 4
-char currentDayNum[DAY_NUM_SIZE];
-char currentWeekNum[WEEK_NUM_SIZE];
-char currentSecondsNum[SECS_NUM_SIZE];
+char currentDayNum[3];
+char currentWeekNum[3];
+char currentSecondsNum[4];
 
 char currentDayName[8];
 char currentMonth[8];
@@ -124,20 +121,20 @@ int mod(int a, int b) {
 
 void SidebarWidgets_updateTime(struct tm* timeInfo) {
   // set all the date strings
-  strftime(currentDayNum, DAY_NUM_SIZE, "%e", timeInfo);
+  strftime(currentDayNum, sizeof(currentDayNum), "%e", timeInfo);
   // remove padding on date num, if needed
   if(currentDayNum[0] == ' ') {
     currentDayNum[0] = currentDayNum[1];
     currentDayNum[1] = '\0';
   }
 
-  strftime(currentWeekNum, WEEK_NUM_SIZE, "%V", timeInfo);
+  strftime(currentWeekNum, sizeof(currentWeekNum), "%V", timeInfo);
 
   strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
   strncpy(currentMonth, monthNames[globalSettings.languageId][timeInfo->tm_mon], sizeof(currentMonth));
 
   // set the seconds string
-  strftime(currentSecondsNum, SECS_NUM_SIZE, ":%S", timeInfo);
+  strftime(currentSecondsNum, sizeof(currentSecondsNum), ":%S", timeInfo);
 
   if(globalSettings.enableAltTimeZone) {
     // set the alternate time zone string
