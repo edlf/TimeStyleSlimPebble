@@ -1,5 +1,5 @@
 {
-  "name": "timestyle-pebble",
+  "name": "timestyle-pebble-slim",
   "author": "Freakified",
   "version": "7.1.0",
   "keywords": [
@@ -10,8 +10,8 @@
     "pebble-fctx": "^1.4.0"
   },
   "pebble": {
-    "displayName": "TimeStyle",
-    "uuid": "4368ffa4-f0fb-4823-90be-f754b076bdaa",
+    "displayName": "TimeStyleSlim",
+    "uuid": "CA43E11F-47C9-4263-AF0D-F3D2116B6C1C",
     "sdkVersion": "3",
     "enableMultiJS": true,
     "targetPlatforms": [
@@ -21,8 +21,6 @@
       "emery"
     ],
     "capabilities": [
-      "location",
-      "health",
       "configurable"
     ],
     "watchapp": {
@@ -31,11 +29,6 @@
       "watchface": true
     },
     "messageKeys": [
-      "WeatherCondition",
-      "WeatherTemperature",
-      "WeatherForecastCondition",
-      "WeatherForecastHighTemp",
-      "WeatherForecastLowTemp",
       "SettingAltClockName",
       "SettingAltClockOffset",
       "SettingDisableAutobattery",
@@ -46,9 +39,6 @@
       "SettingColorSidebar",
       "SettingColorTime",
       "SettingDecimalSep",
-      "SettingDisableWeather",
-      "SettingHealthUseDistance",
-      "SettingHealthUseRestfulSleep",
       "SettingHourlyVibe",
       "SettingLanguageID",
       "SettingShowBatteryPct",
@@ -57,7 +47,6 @@
       "SettingSidebarTextColor",
       "SettingUseLargeFonts",
       "SettingUseMetric",
-      "WeatherUseNightIcon",
       "SettingWidget0ID",
       "SettingWidget1ID",
       "SettingWidget2ID"
@@ -86,51 +75,6 @@
           "type": "raw"
         },
         {
-          "file": "data/WEATHER_GENERIC.pdc",
-          "name": "WEATHER_GENERIC",
-          "type": "raw"
-        },
-        {
-          "file": "data/THUNDERSTORM.pdc",
-          "name": "WEATHER_THUNDERSTORM",
-          "type": "raw"
-        },
-        {
-          "file": "data/RAINING_AND_SNOWING.pdc",
-          "name": "WEATHER_RAINING_AND_SNOWING",
-          "type": "raw"
-        },
-        {
-          "file": "data/PARTLY_CLOUDY_NIGHT.pdc",
-          "name": "WEATHER_PARTLY_CLOUDY_NIGHT",
-          "type": "raw"
-        },
-        {
-          "file": "data/PARTLY_CLOUDY.pdc",
-          "name": "WEATHER_PARTLY_CLOUDY",
-          "type": "raw"
-        },
-        {
-          "file": "data/LIGHT_SNOW.pdc",
-          "name": "WEATHER_LIGHT_SNOW",
-          "type": "raw"
-        },
-        {
-          "file": "data/LIGHT_RAIN.pdc",
-          "name": "WEATHER_LIGHT_RAIN",
-          "type": "raw"
-        },
-        {
-          "file": "data/HEAVY_SNOW.pdc",
-          "name": "WEATHER_HEAVY_SNOW",
-          "type": "raw"
-        },
-        {
-          "file": "data/HEAVY_RAIN.pdc",
-          "name": "WEATHER_HEAVY_RAIN",
-          "type": "raw"
-        },
-        {
           "file": "data/DISCONNECTED.pdc",
           "name": "DISCONNECTED",
           "type": "raw"
@@ -141,21 +85,6 @@
           "type": "raw"
         },
         {
-          "file": "data/CLOUDY_DAY.pdc",
-          "name": "WEATHER_CLOUDY",
-          "type": "raw"
-        },
-        {
-          "file": "data/CLEAR_NIGHT.pdc",
-          "name": "WEATHER_CLEAR_NIGHT",
-          "type": "raw"
-        },
-        {
-          "file": "data/CLEAR_DAY.pdc",
-          "name": "WEATHER_CLEAR_DAY",
-          "type": "raw"
-        },
-        {
           "file": "data/BATTERY_CHARGE.pdc",
           "name": "BATTERY_CHARGE",
           "type": "raw"
@@ -163,21 +92,6 @@
         {
           "file": "data/BATTERY_BG.pdc",
           "name": "BATTERY_BG",
-          "type": "raw"
-        },
-        {
-          "file": "data/HEALTH_SLEEP.pdc",
-          "name": "HEALTH_SLEEP",
-          "type": "raw"
-        },
-        {
-          "file": "data/HEALTH_STEPS.pdc",
-          "name": "HEALTH_STEPS",
-          "type": "raw"
-        },
-        {
-          "file": "data/HEALTH_HEART.pdc",
-          "name": "HEALTH_HEART",
           "type": "raw"
         }
       ]

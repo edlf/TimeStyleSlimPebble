@@ -1,17 +1,8 @@
 #include <pebble.h>
-#include "weather.h"
 #include "settings.h"
 #include "messaging.h"
 
 void (*message_processed_callback)(void);
-
-void messaging_requestNewWeatherData() {
-  // just send an empty message for now
-  DictionaryIterator *iter;
-  app_message_outbox_begin(&iter);
-  dict_write_uint32(iter, 0, 0);
-  app_message_outbox_send();
-}
 
 void messaging_init(void (*processed_callback)(void)) {
   // register my custom callback
@@ -31,34 +22,6 @@ void messaging_init(void (*processed_callback)(void)) {
 }
 
 void inbox_received_callback(DictionaryIterator *iterator, void *context) {
-  // does this message contain current weather conditions?
-  Tuple *weatherTemp_tuple = dict_find(iterator, MESSAGE_KEY_WeatherTemperature);
-  Tuple *weatherConditions_tuple = dict_find(iterator, MESSAGE_KEY_WeatherCondition);
-
-  if(weatherTemp_tuple != NULL && weatherConditions_tuple != NULL) {
-    // now set the weather conditions properly
-    Weather_weatherInfo.currentTemp = (int)weatherTemp_tuple->value->int32;
-
-    Weather_setCurrentCondition(weatherConditions_tuple->value->int32);
-
-    Weather_saveData();
-  }
-
-  // does this message contain weather forecast information?
-  Tuple *weatherForecastCondition_tuple = dict_find(iterator, MESSAGE_KEY_WeatherForecastCondition);
-  Tuple *weatherForecastHigh_tuple = dict_find(iterator, MESSAGE_KEY_WeatherForecastHighTemp);
-  Tuple *weatherForecastLow_tuple = dict_find(iterator, MESSAGE_KEY_WeatherForecastLowTemp);
-
-  if(weatherForecastCondition_tuple != NULL && weatherForecastHigh_tuple != NULL
-     && weatherForecastLow_tuple != NULL) {
-
-    Weather_weatherForecast.highTemp = (int)weatherForecastHigh_tuple->value->int32;
-    Weather_weatherForecast.lowTemp = (int)weatherForecastLow_tuple->value->int32;
-    Weather_setForecastCondition(weatherForecastCondition_tuple->value->int32);
-
-    Weather_saveData();
-  }
-
   // does this message contain new config information?
   Tuple *timeColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingColorTime);
   Tuple *bgColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingColorBG);
@@ -70,7 +33,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *language_tuple = dict_find(iterator, MESSAGE_KEY_SettingLanguageID);
   Tuple *leadingZero_tuple = dict_find(iterator, MESSAGE_KEY_SettingShowLeadingZero);
   Tuple *batteryPct_tuple = dict_find(iterator, MESSAGE_KEY_SettingShowBatteryPct);
-  Tuple *disableWeather_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisableWeather);
   Tuple *clockFont_tuple = dict_find(iterator, MESSAGE_KEY_SettingClockFontId);
   Tuple *hourlyVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingHourlyVibe);
   Tuple *useLargeFonts_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseLargeFonts);
@@ -82,14 +44,9 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *altclockName_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockName);
   Tuple *altclockOffset_tuple = dict_find(iterator, MESSAGE_KEY_SettingAltClockOffset);
 
-  Tuple *decimalSeparator_tuple = dict_find(iterator, MESSAGE_KEY_SettingDecimalSep);
-  Tuple *healthUseDistance_tuple = dict_find(iterator, MESSAGE_KEY_SettingHealthUseDistance);
-  Tuple *healthUseRestfulSleep_tuple = dict_find(iterator, MESSAGE_KEY_SettingHealthUseRestfulSleep);
-
   Tuple *autobattery_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisableAutobattery);
 
   Tuple *activateDisconnectIcon_tuple = dict_find(iterator, MESSAGE_KEY_SettingDisconnectIcon);
-
 
   if(timeColor_tuple != NULL) {
     globalSettings.timeColor = GColorFromHEX(timeColor_tuple->value->int32);
@@ -132,10 +89,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     globalSettings.disableAutobattery = (bool)autobattery_tuple->value->int8;
   }
 
-  if(disableWeather_tuple != NULL) {
-    globalSettings.disableWeather = (bool)disableWeather_tuple->value->int8;
-  }
-
   if(clockFont_tuple != NULL) {
     globalSettings.clockFontId = clockFont_tuple->value->int8;
   }
@@ -170,18 +123,6 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 
   if(altclockOffset_tuple != NULL) {
     globalSettings.altclockOffset = altclockOffset_tuple->value->int8;
-  }
-
-  if(decimalSeparator_tuple != NULL) {
-    globalSettings.decimalSeparator = (char)decimalSeparator_tuple->value->int8;
-  }
-
-  if(healthUseDistance_tuple != NULL) {
-    globalSettings.healthUseDistance = (bool)healthUseDistance_tuple->value->int8;
-  }
-
-  if(healthUseRestfulSleep_tuple != NULL) {
-    globalSettings.healthUseRestfulSleep = (bool)healthUseRestfulSleep_tuple->value->int8;
   }
 
   if(activateDisconnectIcon_tuple != NULL) {

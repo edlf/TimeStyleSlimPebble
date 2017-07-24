@@ -1,6 +1,3 @@
-
-var weather = require('./weather');
-
 var CONFIG_VERSION = 8;
 // var BASE_CONFIG_URL = 'http://localhost:4000/';
 var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
@@ -9,18 +6,6 @@ var BASE_CONFIG_URL = 'http://freakified.github.io/TimeStylePebble/';
 Pebble.addEventListener('ready',
   function(e) {
     console.log('JS component is now READY');
-
-    // if it has never been started, set the weather to disabled
-    // this is because the weather defaults to "off"
-    if(window.localStorage.getItem('disable_weather') === null) {
-      window.localStorage.setItem('disable_weather', 'yes');
-    }
-
-    console.log('the wdisabled value is: "' + window.localStorage.getItem('disable_weather') + '"');
-    // if applicable, get the weather data
-    if(window.localStorage.getItem('disable_weather') != 'yes') {
-      weather.updateWeather();
-    }
   }
 );
 
@@ -29,10 +14,6 @@ Pebble.addEventListener('ready',
 Pebble.addEventListener('appmessage',
   function(msg) {
     console.log('Recieved message: ' + JSON.stringify(msg.payload));
-
-    // in the case of recieving this, we assume the watch does, in fact, need weather data
-    window.localStorage.setItem('disable_weather', 'no');
-    weather.updateWeather();
   }
 );
 
@@ -173,28 +154,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
       }
     }
 
-    // weather widget settings
-    if(configData.units) {
-      if(configData.units == 'c') {
-        dict.SettingUseMetric = 1;
-      } else {
-        dict.SettingUseMetric = 0;
-      }
-    }
-
-    // weather location/source configs are not the watch's concern
-
-    if(configData.weather_loc !== undefined) {
-      window.localStorage.setItem('weather_loc', configData.weather_loc);
-      window.localStorage.setItem('weather_loc_lat', configData.weather_loc_lat);
-      window.localStorage.setItem('weather_loc_lng', configData.weather_loc_lng);
-    }
-
-    if(configData.weather_datasource) {
-      window.localStorage.setItem('weather_datasource', configData.weather_datasource);
-      window.localStorage.setItem('weather_api_key', configData.weather_api_key);
-    }
-
     // battery widget settings
     if(configData.battery_meter_setting) {
       if(configData.battery_meter_setting == 'icon-and-percent') {
@@ -224,53 +183,11 @@ Pebble.addEventListener('webviewclosed', function(e) {
       dict.SettingDecimalSep = configData.decimal_separator;
     }
 
-    if(configData.health_use_distance) {
-      if(configData.health_use_distance == 'yes') {
-        dict.SettingHealthUseDistance = 1;
-      } else {
-        dict.SettingHealthUseDistance = 0;
-      }
-    }
-
-    // heath settings
-    if(configData.health_use_restful_sleep) {
-      if(configData.health_use_restful_sleep == 'yes') {
-        dict.SettingHealthUseRestfulSleep = 1;
-      } else {
-        dict.SettingHealthUseRestfulSleep = 0;
-      }
-    }
-
-    // determine whether or not the weather checking should be enabled
-    var disableWeather;
-
-    var widgetIDs = [configData.widget_0_id, configData.widget_1_id, configData.widget_2_id];
-
-    // if there is either a current conditions or a today's forecast widget, enable the weather
-    if(widgetIDs.indexOf(7) != -1 || widgetIDs.indexOf(8) != -1) {
-        disableWeather = 'no';
-    } else {
-        disableWeather = 'yes';
-    }
-
-    window.localStorage.setItem('disable_weather', disableWeather);
-
-    var enableForecast;
-
-    if(widgetIDs.indexOf(8) != -1) {
-      enableForecast = 'yes';
-    }
-
-    window.localStorage.setItem('enable_forecast', enableForecast);
-
     console.log('Preparing message: ', JSON.stringify(dict));
 
     // Send settings to Pebble watchapp
     Pebble.sendAppMessage(dict, function(){
-      console.log('Sent config data to Pebble, now trying to get weather');
-
-      // after sending config data, force a weather refresh in case that changed
-      weather.updateWeather(true);
+      console.log('Sent config data to Pebble');
     }, function() {
         console.log('Failed to send config data!');
     });

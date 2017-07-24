@@ -46,23 +46,15 @@ typedef struct {
   char altclockName[8];
   int altclockOffset;
 
-  // health widget Settings
-  bool healthUseDistance;
-  bool healthUseRestfulSleep;
-  char decimalSeparator;
-
   // dynamic settings (calculated based the currently-selected widgets)
-  bool disableWeather;
   bool updateScreenEverySecond;
   bool enableAutoBatteryWidget;
-  bool enableBeats;
   bool enableAltTimeZone;
 
   // TODO: these shouldn't be dynamic
   GColor iconFillColor;
   GColor iconStrokeColor;
 } Settings;
-
 
 // !! all future settings should be added to the bottom of this structure
 // !! do not remove fields from this structure, it will lead to unexpected behaviour
@@ -92,11 +84,6 @@ typedef struct {
   // battery meter widget settings
   uint8_t showBatteryPct:1;
   uint8_t disableAutobattery:1;
-
-  // health widget Settings
-  uint8_t healthUseDistance:1;
-  uint8_t healthUseRestfulSleep:1;
-  char decimalSeparator;
 
   // alt tz widget settings
   char altclockName[8];
@@ -132,10 +119,6 @@ extern Settings globalSettings;
 #define SETTING_SIDEBAR_LEFT_KEY          22
 #define SETTING_USE_LARGE_FONTS_KEY       16
 
-// weather widget settings
-#define SETTING_DISABLE_WEATHER_KEY       12
-#define SETTING_USE_METRIC_KEY            21
-
 // battery meter widget settings
 #define SETTING_SHOW_BATTERY_PCT_KEY      11
 #define SETTING_DISABLE_AUTOBATTERY       36
@@ -143,12 +126,6 @@ extern Settings globalSettings;
 // alt tz widget settings
 #define SETTING_ALTCLOCK_NAME_KEY         30
 #define SETTING_ALTCLOCK_OFFSET_KEY       31
-
-// health widget settings
-#define SETTING_HEALTH_USE_DISTANCE       32
-#define SETTING_HEALTH_USE_RESTFUL_SLEEP  33
-#define SETTING_HEALTH_USE_METRIC         35
-#define SETTING_DECIMAL_SEPARATOR_KEY     34
 
 // key for all the settings for versions 6 and higher
 #define SETTING_VERSION6_AND_HIGHER       100

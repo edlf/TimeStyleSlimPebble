@@ -2,7 +2,6 @@
 #include <ctype.h>
 #include <math.h>
 #include "settings.h"
-#include "weather.h"
 #include "languages.h"
 #include "sidebar.h"
 #include "sidebar_widgets.h"
@@ -125,12 +124,6 @@ int getReplacableWidget() {
     return 2;
   }
 
-  if(globalSettings.widgets[0] == WEATHER_CURRENT || globalSettings.widgets[0] == WEATHER_FORECAST_TODAY) {
-    return 0;
-  } else if(globalSettings.widgets[2] == WEATHER_CURRENT || globalSettings.widgets[2] == WEATHER_FORECAST_TODAY) {
-    return 2;
-  }
-
   // if we don't have any of those things, just replace the left widget
   return 0;
 }
@@ -143,14 +136,6 @@ int getReplacableWidget() {
   // if any widgets are empty, it's an obvious choice
   for(int i = 0; i < 3; i++) {
     if(globalSettings.widgets[i] == EMPTY) {
-      return i;
-    }
-  }
-
-  // are there any bluetooth-enabled widgets? if so, they're the second-best
-  // candidates
-  for(int i = 0; i < 3; i++) {
-    if(globalSettings.widgets[i] == WEATHER_CURRENT || globalSettings.widgets[i] == WEATHER_FORECAST_TODAY) {
       return i;
     }
   }

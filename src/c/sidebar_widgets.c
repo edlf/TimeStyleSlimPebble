@@ -1,7 +1,6 @@
 #include <pebble.h>
 #include <math.h>
 #include "settings.h"
-#include "weather.h"
 #include "languages.h"
 #include "util.h"
 #include "sidebar_widgets.h"
@@ -29,7 +28,6 @@ char currentMonth[8];
 char currentWeekNum[5];
 char currentSecondsNum[5];
 char altClock[8];
-char currentBeats[5];
 
 // the widgets
 SidebarWidget batteryMeterWidget;
@@ -43,14 +41,6 @@ void EmptyWidget_draw(GContext* ctx, int yPosition);
 SidebarWidget dateWidget;
 int DateWidget_getHeight();
 void DateWidget_draw(GContext* ctx, int yPosition);
-
-SidebarWidget currentWeatherWidget;
-int CurrentWeather_getHeight();
-void CurrentWeather_draw(GContext* ctx, int yPosition);
-
-SidebarWidget weatherForecastWidget;
-int WeatherForecast_getHeight();
-void WeatherForecast_draw(GContext* ctx, int yPosition);
 
 SidebarWidget btDisconnectWidget;
 int BTDisconnect_getHeight();
@@ -68,26 +58,6 @@ SidebarWidget altTimeWidget;
 int AltTime_getHeight();
 void AltTime_draw(GContext* ctx, int yPosition);
 
-SidebarWidget beatsWidget;
-int Beats_getHeight();
-void Beats_draw(GContext* ctx, int yPosition);
-
-#ifdef PBL_HEALTH
-  GDrawCommandImage* sleepImage;
-  GDrawCommandImage* stepsImage;
-  GDrawCommandImage* heartImage;
-
-  SidebarWidget healthWidget;
-  int Health_getHeight();
-  void Health_draw(GContext* ctx, int yPosition);
-  void Sleep_draw(GContext* ctx, int yPosition);
-  void Steps_draw(GContext* ctx, int yPosition);
-
-  SidebarWidget heartRateWidget;
-  int HeartRate_getHeight();
-  void HeartRate_draw(GContext* ctx, int yPosition);
-#endif
-
 void SidebarWidgets_init() {
   // load fonts
   smSidebarFont = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
@@ -100,12 +70,6 @@ void SidebarWidgets_init() {
   batteryImage = gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_BG);
   batteryChargeImage = gdraw_command_image_create_with_resource(RESOURCE_ID_BATTERY_CHARGE);
 
-  #ifdef PBL_HEALTH
-    sleepImage = gdraw_command_image_create_with_resource(RESOURCE_ID_HEALTH_SLEEP);
-    stepsImage = gdraw_command_image_create_with_resource(RESOURCE_ID_HEALTH_STEPS);
-    heartImage = gdraw_command_image_create_with_resource(RESOURCE_ID_HEALTH_HEART);
-  #endif
-
   // set up widgets' function pointers correctly
   batteryMeterWidget.getHeight = BatteryMeter_getHeight;
   batteryMeterWidget.draw      = BatteryMeter_draw;
@@ -115,12 +79,6 @@ void SidebarWidgets_init() {
 
   dateWidget.getHeight = DateWidget_getHeight;
   dateWidget.draw      = DateWidget_draw;
-
-  currentWeatherWidget.getHeight = CurrentWeather_getHeight;
-  currentWeatherWidget.draw      = CurrentWeather_draw;
-
-  weatherForecastWidget.getHeight = WeatherForecast_getHeight;
-  weatherForecastWidget.draw      = WeatherForecast_draw;
 
   btDisconnectWidget.getHeight = BTDisconnect_getHeight;
   btDisconnectWidget.draw      = BTDisconnect_draw;
@@ -133,18 +91,6 @@ void SidebarWidgets_init() {
 
   altTimeWidget.getHeight = AltTime_getHeight;
   altTimeWidget.draw      = AltTime_draw;
-
-  #ifdef PBL_HEALTH
-    healthWidget.getHeight = Health_getHeight;
-    healthWidget.draw = Health_draw;
-    
-    heartRateWidget.getHeight = HeartRate_getHeight;
-    heartRateWidget.draw = HeartRate_draw;
-  #endif
-
-  beatsWidget.getHeight = Beats_getHeight;
-  beatsWidget.draw      = Beats_draw;
-
 }
 
 void SidebarWidgets_deinit() {
@@ -152,12 +98,6 @@ void SidebarWidgets_deinit() {
   gdraw_command_image_destroy(disconnectImage);
   gdraw_command_image_destroy(batteryImage);
   gdraw_command_image_destroy(batteryChargeImage);
-
-  #ifdef PBL_HEALTH
-    gdraw_command_image_destroy(stepsImage);
-    gdraw_command_image_destroy(sleepImage);
-    gdraw_command_image_destroy(heartImage);
-  #endif
 }
 
 void SidebarWidgets_updateFonts() {
@@ -222,16 +162,6 @@ void SidebarWidgets_updateTime(struct tm* timeInfo) {
       snprintf(altClock, sizeof(altClock), "%i%c", hour, am_pm);
     }
   }
-
-  if(globalSettings.enableBeats) {
-    // this must be last, because time_get_beats screws with the time structure
-    int beats = 0;
-
-    // set the swatch internet time beats
-    beats = time_get_beats(timeInfo);
-  
-    snprintf(currentBeats, sizeof(currentBeats), "%i", beats);
-  }
 }
 
 /* Sidebar Widget Selection */
@@ -252,22 +182,8 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
     case SECONDS:
       return secondsWidget;
       break;
-    case WEATHER_CURRENT:
-      return currentWeatherWidget;
-      break;
-    case WEATHER_FORECAST_TODAY:
-      return weatherForecastWidget;
-      break;
     case WEEK_NUMBER:
       return weekNumberWidget;
-    #ifdef PBL_HEALTH
-      case HEALTH:
-        return healthWidget;
-      case HEARTRATE:
-        return heartRateWidget;
-    #endif
-    case BEATS:
-      return beatsWidget;
     default:
       return emptyWidget;
       break;
@@ -435,69 +351,6 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
 
 }
 
-/********** current weather widget **********/
-
-int CurrentWeather_getHeight() {
-  if(globalSettings.useLargeFonts) {
-    return 44;
-  } else {
-    return 42;
-  }
-}
-
-void CurrentWeather_draw(GContext* ctx, int yPosition) {
-  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
-
-  if (Weather_currentWeatherIcon) {
-    gdraw_command_image_recolor(Weather_currentWeatherIcon, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
-    gdraw_command_image_draw(ctx, Weather_currentWeatherIcon, GPoint(3 + SidebarWidgets_xOffset, yPosition));
-  }
-
-  // draw weather data only if it has been set
-  if(Weather_weatherInfo.currentTemp != INT32_MIN) {
-
-    int currentTemp = Weather_weatherInfo.currentTemp;
-
-    if(!globalSettings.useMetric) {
-      currentTemp = roundf(currentTemp * 1.8f + 32);
-    }
-
-    char tempString[8];
-
-    // in large font mode, omit the degree symbol and move the text
-    if(!globalSettings.useLargeFonts) {
-      snprintf(tempString, sizeof(tempString), " %d°", currentTemp);
-
-      graphics_draw_text(ctx,
-                         tempString,
-                         currentSidebarFont,
-                         GRect(-5 + SidebarWidgets_xOffset, yPosition + 24, 38, 20),
-                         GTextOverflowModeFill,
-                         GTextAlignmentCenter,
-                         NULL);
-    } else {
-      snprintf(tempString, sizeof(tempString), " %d", currentTemp);
-
-      graphics_draw_text(ctx,
-                         tempString,
-                         currentSidebarFont,
-                         GRect(-5 + SidebarWidgets_xOffset, yPosition + 20, 35, 20),
-                         GTextOverflowModeFill,
-                         GTextAlignmentCenter,
-                         NULL);
-    }
-  } else {
-    // if the weather data isn't set, draw a loading indication
-    graphics_draw_text(ctx,
-                       "...",
-                       currentSidebarFont,
-                       GRect(-5 + SidebarWidgets_xOffset, yPosition, 38, 20),
-                       GTextOverflowModeFill,
-                       GTextAlignmentCenter,
-                       NULL);
-  }
-}
-
 /***** Bluetooth Disconnection Widget *****/
 
 int BTDisconnect_getHeight() {
@@ -569,98 +422,6 @@ void Seconds_draw(GContext* ctx, int yPosition) {
                      NULL);
 }
 
-/***** Weather Forecast Widget *****/
-
-int WeatherForecast_getHeight() {
-  if(globalSettings.useLargeFonts) {
-    return 63;
-  } else {
-    return 60;
-  }
-}
-
-void WeatherForecast_draw(GContext* ctx, int yPosition) {
-  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
-
-  if(Weather_forecastWeatherIcon) {
-    gdraw_command_image_recolor(Weather_forecastWeatherIcon, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
-
-    gdraw_command_image_draw(ctx, Weather_forecastWeatherIcon, GPoint(3 + SidebarWidgets_xOffset, yPosition));
-  }
-
-  // draw weather data only if it has been set
-  if(Weather_weatherForecast.highTemp != INT32_MIN) {
-
-    int highTemp = Weather_weatherForecast.highTemp;
-    int lowTemp  = Weather_weatherForecast.lowTemp;
-
-    if(!globalSettings.useMetric) {
-      highTemp = roundf(highTemp * 1.8f + 32);
-      lowTemp  = roundf(lowTemp * 1.8f + 32);
-    }
-
-    char tempString[8];
-
-    graphics_context_set_fill_color(ctx, globalSettings.sidebarTextColor);
-
-    // in large font mode, omit the degree symbol and move the text
-    if(!globalSettings.useLargeFonts) {
-      snprintf(tempString, sizeof(tempString), " %d°", highTemp);
-
-      graphics_draw_text(ctx,
-                         tempString,
-                         currentSidebarFont,
-                         GRect(-5 + SidebarWidgets_xOffset, yPosition + 24, 38, 20),
-                         GTextOverflowModeFill,
-                         GTextAlignmentCenter,
-                         NULL);
-
-      graphics_fill_rect(ctx, GRect(3 + SidebarWidgets_xOffset, 8 + yPosition + 37, 24, 1), 0, GCornerNone);
-
-      snprintf(tempString, sizeof(tempString), " %d°", lowTemp);
-
-      graphics_draw_text(ctx,
-                         tempString,
-                         currentSidebarFont,
-                         GRect(-5 + SidebarWidgets_xOffset, yPosition + 42, 38, 20),
-                         GTextOverflowModeFill,
-                         GTextAlignmentCenter,
-                         NULL);
-    } else {
-      snprintf(tempString, sizeof(tempString), "%d", highTemp);
-
-      graphics_draw_text(ctx,
-                         tempString,
-                         currentSidebarFont,
-                         GRect(0 + SidebarWidgets_xOffset, yPosition + 20, 30, 20),
-                         GTextOverflowModeFill,
-                         GTextAlignmentCenter,
-                         NULL);
-
-      graphics_fill_rect(ctx, GRect(3 + SidebarWidgets_xOffset, 8 + yPosition + 38, 24, 1), 0, GCornerNone);
-
-      snprintf(tempString, sizeof(tempString), "%d", lowTemp);
-
-      graphics_draw_text(ctx,
-                         tempString,
-                         currentSidebarFont,
-                         GRect(0 + SidebarWidgets_xOffset, yPosition + 39, 30, 20),
-                         GTextOverflowModeFill,
-                         GTextAlignmentCenter,
-                         NULL);
-    }
-  } else {
-    // if the weather data isn't set, draw a loading indication
-    graphics_draw_text(ctx,
-                       "...",
-                       currentSidebarFont,
-                       GRect(-5 + SidebarWidgets_xOffset, yPosition, 38, 20),
-                       GTextOverflowModeFill,
-                       GTextAlignmentCenter,
-                       NULL);
-  }
-}
-
 /***** Alternate Time Zone Widget *****/
 
 int AltTime_getHeight() {
@@ -684,221 +445,6 @@ void AltTime_draw(GContext* ctx, int yPosition) {
                      altClock,
                      currentSidebarFont,
                      GRect(-1 + SidebarWidgets_xOffset, yPosition + yMod, 30, 20),
-                     GTextOverflowModeFill,
-                     GTextAlignmentCenter,
-                     NULL);
-}
-
-/***** Health Widget *****/
-
-#ifdef PBL_HEALTH
-
-
-int Health_getHeight() {
-  if(is_user_sleeping()) {
-    return 44;
-  } else {
-    return 32;
-  }
-}
-
-void Health_draw(GContext* ctx, int yPosition) {
-  // check if we're showing the sleep data or step data
-
-  // is the user asleep?
-  bool sleep_mode = is_user_sleeping();
-
-  if(sleep_mode) {
-    Sleep_draw(ctx, yPosition);
-  } else {
-    Steps_draw(ctx, yPosition);
-  }
-}
-
-void Sleep_draw(GContext* ctx, int yPosition) {
-  if(sleepImage) {
-    gdraw_command_image_recolor(sleepImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
-    gdraw_command_image_draw(ctx, sleepImage, GPoint(3 + SidebarWidgets_xOffset, yPosition - 7));
-  }
-
-  // get sleep in seconds
-  int sleep_seconds;
-
-  HealthActivityMask metric = (globalSettings.healthUseRestfulSleep) ? HealthMetricSleepRestfulSeconds: HealthMetricSleepSeconds;
-
-  if(is_health_metric_accessible(metric)) {
-    sleep_seconds = (int)health_service_sum_today(metric);
-  } else {
-    sleep_seconds = 0;
-  }
-
-  // convert to hours/minutes
-  int sleep_minutes = sleep_seconds / 60;
-  int sleep_hours   = sleep_minutes / 60;
-
-  // find minutes remainder
-  sleep_minutes %= 60;
-
-  char sleep_text[4];
-
-  snprintf(sleep_text, sizeof(sleep_text), "%ih", sleep_hours);
-
-  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
-  graphics_draw_text(ctx,
-                     sleep_text,
-                     mdSidebarFont,
-                     GRect(-2 + SidebarWidgets_xOffset, yPosition + 14, 34, 20),
-                     GTextOverflowModeFill,
-                     GTextAlignmentCenter,
-                     NULL);
-
-  snprintf(sleep_text, sizeof(sleep_text), "%im", sleep_minutes);
-
-  graphics_draw_text(ctx,
-                     sleep_text,
-                     smSidebarFont,
-                     GRect(-2 + SidebarWidgets_xOffset, yPosition + 30, 34, 20),
-                     GTextOverflowModeFill,
-                     GTextAlignmentCenter,
-                     NULL);
-
-}
-
-void Steps_draw(GContext* ctx, int yPosition) {
-
-  if(stepsImage) {
-    gdraw_command_image_recolor(stepsImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
-    gdraw_command_image_draw(ctx, stepsImage, GPoint(3 + SidebarWidgets_xOffset, yPosition - 7));
-  }
-
-  char steps_text[8];
-  bool use_small_font = false;
-
-  if(globalSettings.healthUseDistance) {
-    int distance = 0;
-
-    if(is_health_metric_accessible(HealthMetricWalkedDistanceMeters)) {
-      distance = (int)health_service_sum_today(HealthMetricWalkedDistanceMeters);
-    }
-
-    MeasurementSystem unit_system = health_service_get_measurement_system_for_display(HealthMetricWalkedDistanceMeters);
-
-    // format distance string
-    if(unit_system == MeasurementSystemMetric) {
-      if(distance < 100) {
-        snprintf(steps_text, sizeof(steps_text), "%im", distance);
-      } else if(distance < 1000) {
-        distance /= 100; // convert to tenths of km
-        snprintf(steps_text, sizeof(steps_text), ".%ikm", distance);
-      } else {
-        distance /= 1000; // convert to km
-
-        if(distance > 9) {
-          use_small_font = true;
-        }
-
-        snprintf(steps_text, sizeof(steps_text), "%ikm", distance);
-      }
-    } else {
-      int miles_tenths = distance * 10 / 1609 % 10;
-      int miles_whole  = (int)roundf(distance / 1609.0f);
-
-      if(miles_whole > 0) {
-        snprintf(steps_text, sizeof(steps_text), "%imi", miles_whole);
-      } else {
-        snprintf(steps_text, sizeof(steps_text), "%c%imi", globalSettings.decimalSeparator, miles_tenths);
-      }
-    }
-  } else {
-    int steps = (int)health_service_sum_today(HealthMetricStepCount);
-
-    if(is_health_metric_accessible(HealthMetricStepCount)) {
-      steps = (int)health_service_sum_today(HealthMetricStepCount);
-    }
-
-    // format step string
-    if(steps < 1000) {
-      snprintf(steps_text, sizeof(steps_text), "%i", steps);
-    } else {
-      int steps_thousands = steps / 1000;
-      int steps_hundreds  = steps / 100 % 10;
-
-      if (steps < 10000) {
-        snprintf(steps_text, sizeof(steps_text), "%i%c%ik", steps_thousands, globalSettings.decimalSeparator, steps_hundreds);
-      } else {
-        snprintf(steps_text, sizeof(steps_text), "%ik", steps_thousands);
-      }
-    }
-  }
-
-  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
-
-  graphics_draw_text(ctx,
-                     steps_text,
-                     (use_small_font) ? smSidebarFont : mdSidebarFont,
-                     GRect(-2 + SidebarWidgets_xOffset, yPosition + 13, 35, 20),
-                     GTextOverflowModeFill,
-                     GTextAlignmentCenter,
-                     NULL);
-}
-
-int HeartRate_getHeight() {
-  if(globalSettings.useLargeFonts) {
-    return 40;
-  } else {
-    return 38;
-  }
-}
-
-void HeartRate_draw(GContext* ctx, int yPosition) {
-  if(heartImage) {
-    gdraw_command_image_recolor(heartImage, globalSettings.iconFillColor, globalSettings.iconStrokeColor);
-    gdraw_command_image_draw(ctx, heartImage, GPoint(3 + SidebarWidgets_xOffset, yPosition));
-  }
-
-  int yOffset = globalSettings.useLargeFonts ? 17 : 21;
-
-  // TODO: accessibility check?
-  int heart_rate = health_service_peek_current_value(HealthMetricHeartRateBPM);
-  char heart_rate_text[8];
-
-  snprintf(heart_rate_text, sizeof(heart_rate_text), "%i", heart_rate);
-
-  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
-  graphics_draw_text(ctx,
-                     heart_rate_text,
-                     currentSidebarFont,
-                     GRect(-5 + SidebarWidgets_xOffset, yPosition + yOffset, 38, 20),
-                     GTextOverflowModeFill,
-                     GTextAlignmentCenter,
-                     NULL);
-}
-
-#endif
-
-/***** Beats (Swatch Internet Time) widget *****/
-
-int Beats_getHeight() {
-  return (globalSettings.useLargeFonts) ? 29 : 26;
-}
-
-void Beats_draw(GContext* ctx, int yPosition) {
-  graphics_context_set_text_color(ctx, globalSettings.sidebarTextColor);
-
-  graphics_draw_text(ctx,
-                     "@",
-                     smSidebarFont,
-                     GRect(SidebarWidgets_xOffset, yPosition - 5, 30, 20),
-                     GTextOverflowModeFill,
-                     GTextAlignmentCenter,
-                     NULL);
-
-  int yMod = (globalSettings.useLargeFonts) ? 5 : 8;
-
-  graphics_draw_text(ctx,
-                     currentBeats,
-                     currentSidebarFont,
-                     GRect(SidebarWidgets_xOffset, yPosition + yMod, 30, 20),
                      GTextOverflowModeFill,
                      GTextAlignmentCenter,
                      NULL);

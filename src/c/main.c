@@ -2,7 +2,6 @@
 #include "clock_area.h"
 #include "messaging.h"
 #include "settings.h"
-#include "weather.h"
 #include "sidebar.h"
 #include "util.h"
 
@@ -15,9 +14,6 @@ static bool isPhoneConnected;
 
 // current time service subscription
 static bool updatingEverySecond;
-
-// try to randomize when watches call the weather API
-static uint8_t weatherRefreshMinute;
 
 void update_clock();
 void redrawScreen();
@@ -82,13 +78,6 @@ static void main_window_unload(Window *window) {
 
 
 void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-  // every 30 minutes, request new weather data
-  if(!globalSettings.disableWeather) {
-    if(tick_time->tm_min == weatherRefreshMinute && tick_time->tm_sec == 0) {
-      messaging_requestNewWeatherData();
-    }
-  }
-
   // every hour, if requested, vibrate
   if(!quiet_time_is_active() && tick_time->tm_sec == 0) {
     if(globalSettings.hourlyVibe == VIBE_EVERY_HOUR) { // hourly vibes only
@@ -123,11 +112,6 @@ void bluetoothStateChanged(bool newConnectionState) {
     vibes_enqueue_custom_pattern(pat);
   }
 
-  // if the phone was disconnected and isn't anymore, update the data
-  if(!isPhoneConnected && newConnectionState) {
-    messaging_requestNewWeatherData();
-  }
-
   isPhoneConnected = newConnectionState;
 
   Sidebar_redraw();
@@ -156,15 +140,8 @@ static void app_focus_changed(bool focused) {
 static void init() {
   setlocale(LC_ALL, "");
 
-  srand(time(NULL));
-
-  weatherRefreshMinute = rand() % 60;
-
   // init settings
   Settings_init();
-
-  // init weather system
-  Weather_init();
 
   // init the messaging thing
   messaging_init(redrawScreen);
@@ -210,8 +187,6 @@ static void deinit() {
   // Destroy Window
   window_destroy(mainWindow);
 
-  // unload weather stuff
-  Weather_deinit();
   Settings_deinit();
 
   tick_timer_service_unsubscribe();
