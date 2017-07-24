@@ -1,6 +1,8 @@
 # TimeStyleSlim
 A stylish, modern watchface for the Pebble and Pebble Time watches. This is a lite or reduced version of the [TimeStyle watchface](https://github.com/freakified/TimeStylePebble).
 
+<img src="screenshot.png" width="288" height="336">
+
 Inspired by the visual language of the Timeline found on the Pebble Time, TimeStyle is designed as the “present” to complement the Timeline’s “past” and “future”.
 
 * Readable: With more than 80% of the display area devoted to the time and 6 font options, TimeStyle is designed for readability in all conditions. Unlike most other Pebble faces, time text is displayed using antialiasing, achieved using palette swapping.
@@ -10,5 +12,5 @@ Inspired by the visual language of the Timeline found on the Pebble Time, TimeSt
 * Works in 30 different languages, more than any other Pebble face: English, French, German, Spanish, Italian, Dutch, Turkish, Czech, Slovak, Portuguese, Greek, Swedish, Polish, Romanian, Vietnamese, Catalan, Norwegian, Russian, Estonian, Basque, Finnish, Danish, Lithuanian, Slovenian, Hungarian, Croatian, Serbian, Irish, Latviann, and Ukrainian.
 
 ## Want to try it?
-You must build it, since it is not on the Pebble store. There is no configuration service yet.
+You must sideload it, since it is not on the Pebble store. There is no configuration service yet. A build is available on the releases page.
 
