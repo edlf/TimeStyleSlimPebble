@@ -1,7 +1,7 @@
 {
   "name": "timestyle-pebble-slim",
-  "author": "Freakified",
-  "version": "7.1.0",
+  "author": "Freakified, edlf",
+  "version": "1.0.0",
   "keywords": [
     "pebble-watchface"
   ],
@@ -58,11 +58,6 @@
           "menuIcon": true,
           "name": "MENU_ICON",
           "type": "bitmap"
-        },
-        {
-          "file": "fonts/LECO1976-Regular.ffont",
-          "name": "LECO_REGULAR_FFONT",
-          "type": "raw"
         },
         {
           "file": "fonts/AvenirNextRegular.ffont",

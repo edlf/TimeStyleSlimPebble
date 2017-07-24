@@ -2,10 +2,7 @@
 #include <pebble.h>
 #include "sidebar_widgets.h"
 
-#define SETTINGS_VERSION_KEY 4
-
-// settings "version" for app version 4.0
-#define CURRENT_SETTINGS_VERSION 6
+#define PERSIST_KEY 0
 
 typedef enum {
   NO_VIBE              = 0,
@@ -95,43 +92,9 @@ typedef struct {
 
 extern Settings globalSettings;
 
-// persistent storage keys for each setting
-
-// color settings
-#define SETTING_TIME_COLOR_KEY            17
-#define SETTING_TIME_BG_COLOR_KEY         18
-#define SETTING_SIDEBAR_COLOR_KEY         19
-#define SETTING_SIDEBAR_TEXT_COLOR_KEY    20
-
-// general settings
-#define SETTING_LANGUAGE_ID_KEY           25
-#define SETTING_LEADING_ZERO_KEY          10
-#define SETTING_CLOCK_FONT_ID_KEY         13
-
-// vibration settings
-#define SETTING_BT_VIBE_KEY               23
-#define SETTING_HOURLY_VIBE_KEY           14
-
-// sidebar settings
-#define SETTING_SIDEBAR_WIDGET0_KEY       26
-#define SETTING_SIDEBAR_WIDGET1_KEY       27
-#define SETTING_SIDEBAR_WIDGET2_KEY       28
-#define SETTING_SIDEBAR_LEFT_KEY          22
-#define SETTING_USE_LARGE_FONTS_KEY       16
-
-// battery meter widget settings
-#define SETTING_SHOW_BATTERY_PCT_KEY      11
-#define SETTING_DISABLE_AUTOBATTERY       36
-
-// alt tz widget settings
-#define SETTING_ALTCLOCK_NAME_KEY         30
-#define SETTING_ALTCLOCK_OFFSET_KEY       31
-
-// key for all the settings for versions 6 and higher
-#define SETTING_VERSION6_AND_HIGHER       100
-
 void Settings_init();
 void Settings_deinit();
 void Settings_loadFromStorage();
 void Settings_saveToStorage();
+void Settings_loadDefaults();
 void Settings_updateDynamicSettings();

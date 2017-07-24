@@ -94,14 +94,12 @@ Pebble.addEventListener('webviewclosed', function(e) {
     if(configData.clock_font_setting) {
       if(configData.clock_font_setting == 'default') {
         dict.SettingClockFontId = 0;
-      } else if(configData.clock_font_setting == 'leco') {
-        dict.SettingClockFontId = 1;
       } else if(configData.clock_font_setting == 'bold') {
-        dict.SettingClockFontId = 2;
+        dict.SettingClockFontId = 1;
       } else if(configData.clock_font_setting == 'bold-h') {
-        dict.SettingClockFontId = 3;
+        dict.SettingClockFontId = 2;
       } else if(configData.clock_font_setting == 'bold-m') {
-        dict.SettingClockFontId = 4;
+        dict.SettingClockFontId = 3;
       }
     }
 
@@ -177,10 +175,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     if(configData.altclock_offset !== null) {
       dict.SettingAltClockOffset = parseInt(configData.altclock_offset, 10);
-    }
-
-    if(configData.decimal_separator) {
-      dict.SettingDecimalSep = configData.decimal_separator;
     }
 
     console.log('Preparing message: ', JSON.stringify(dict));

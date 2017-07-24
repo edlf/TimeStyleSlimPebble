@@ -18,32 +18,31 @@ FFont* minutes_font;
 // dealing with allocating and deallocating things
 FFont* avenir;
 FFont* avenir_bold;
-FFont* leco;
 
 GRect screen_rect;
 
 // "private" functions
 void update_fonts() {
   switch(globalSettings.clockFontId) {
+    default:
     case FONT_SETTING_DEFAULT:
         hours_font = avenir;
         minutes_font = avenir;
       break;
+      
     case FONT_SETTING_BOLD:
         hours_font = avenir_bold;
         minutes_font = avenir_bold;
       break;
+      
     case FONT_SETTING_BOLD_H:
         hours_font = avenir_bold;
         minutes_font = avenir;
       break;
+      
     case FONT_SETTING_BOLD_M:
         hours_font = avenir;
         minutes_font = avenir_bold;
-      break;
-    case FONT_SETTING_LECO:
-        hours_font = leco;
-        minutes_font = leco;
       break;
   }
 }
@@ -72,30 +71,15 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
   int h_adjust = 0;
   int v_adjust = 0;
 
-  // alternate metrics for LECO
-  if(globalSettings.clockFontId == FONT_SETTING_LECO) {
-    font_size = 4 * bounds.size.h / 7 + 6;
-    v_padding = bounds.size.h / 20;
-    h_adjust = -4;
-    v_adjust = 0;
 
-    // leco looks awful with antialiasing
-    #ifdef PBL_COLOR
-      fctx_enable_aa(false);
-    #endif
-  } else {
-    #ifdef PBL_COLOR
-      fctx_enable_aa(true);
-    #endif
-  }
+  #ifdef PBL_COLOR
+    fctx_enable_aa(true);
+  #endif
 
   // if it's a round watch, EVERYTHING CHANGES
   #ifdef PBL_ROUND
     v_adjust = ROUND_VERTICAL_PADDING;
-
-    if(globalSettings.clockFontId != FONT_SETTING_LECO) {
-      h_adjust = -1;
-    }
+    h_adjust = -1;
   #else
     // for rectangular watches, adjust X position based on sidebar position
     if(globalSettings.sidebarOnLeft) {
@@ -141,7 +125,6 @@ void ClockArea_init(Window* window) {
   // allocate fonts
   avenir =      ffont_create_from_resource(RESOURCE_ID_AVENIR_REGULAR_FFONT);
   avenir_bold = ffont_create_from_resource(RESOURCE_ID_AVENIR_BOLD_FFONT);
-  leco =        ffont_create_from_resource(RESOURCE_ID_LECO_REGULAR_FFONT);
 
   // select fonts based on settings
   update_fonts();
@@ -152,7 +135,6 @@ void ClockArea_deinit() {
 
   ffont_destroy(avenir);
   ffont_destroy(avenir_bold);
-  ffont_destroy(leco);
 }
 
 void ClockArea_redraw() {
