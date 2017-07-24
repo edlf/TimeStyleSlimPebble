@@ -18,8 +18,7 @@ FFont* minutes_font;
 // dealing with allocating and deallocating things
 FFont* avenir;
 FFont* avenir_bold;
-
-GRect screen_rect;
+extern GRect screen_rect;
 
 // "private" functions
 void update_fonts() {
@@ -29,17 +28,17 @@ void update_fonts() {
         hours_font = avenir;
         minutes_font = avenir;
       break;
-      
+
     case FONT_SETTING_BOLD:
         hours_font = avenir_bold;
         minutes_font = avenir_bold;
       break;
-      
+
     case FONT_SETTING_BOLD_H:
         hours_font = avenir_bold;
         minutes_font = avenir;
       break;
-      
+
     case FONT_SETTING_BOLD_M:
         hours_font = avenir;
         minutes_font = avenir_bold;

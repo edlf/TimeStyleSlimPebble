@@ -8,6 +8,7 @@
 // windows and layers
 static Window* mainWindow;
 static Layer* windowLayer;
+GRect screen_rect;
 
 // current bluetooth state
 static bool isPhoneConnected;
