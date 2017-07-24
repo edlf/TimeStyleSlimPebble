@@ -31,9 +31,6 @@ typedef struct {
   bool sidebarOnLeft;
   bool useLargeFonts;
   bool activateDisconnectIcon;
-  
-  // weather widget settings
-  bool useMetric;
 
   // battery meter widget settings
   bool showBatteryPct;
@@ -74,9 +71,6 @@ typedef struct {
   uint8_t widgets[3];
   uint8_t sidebarOnLeft:1;
   uint8_t useLargeFonts:1;
-
-  // weather widget settings
-  uint8_t useMetric:1;
 
   // battery meter widget settings
   uint8_t showBatteryPct:1;

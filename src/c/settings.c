@@ -34,7 +34,6 @@ void Settings_loadFromStorage() {
     globalSettings.widgets[2] = storedSettings.widgets[2];
     globalSettings.sidebarOnLeft = storedSettings.sidebarOnLeft;
     globalSettings.useLargeFonts = storedSettings.useLargeFonts;
-    globalSettings.useMetric = storedSettings.useMetric;
     globalSettings.showBatteryPct = storedSettings.showBatteryPct;
     globalSettings.disableAutobattery = storedSettings.disableAutobattery;
     memcpy(globalSettings.altclockName, storedSettings.altclockName, 8);
@@ -43,7 +42,7 @@ void Settings_loadFromStorage() {
   } else {
     Settings_loadDefaults();
   }
-  
+
   Settings_updateDynamicSettings();
 }
 
@@ -66,7 +65,6 @@ void Settings_saveToStorage() {
   storedSettings.widgets[2] = globalSettings.widgets[2];
   storedSettings.sidebarOnLeft = globalSettings.sidebarOnLeft;
   storedSettings.useLargeFonts = globalSettings.useLargeFonts;
-  storedSettings.useMetric = globalSettings.useMetric;
   storedSettings.showBatteryPct = globalSettings.showBatteryPct;
   storedSettings.disableAutobattery = globalSettings.disableAutobattery;
   memcpy(storedSettings.altclockName, globalSettings.altclockName, 8);
@@ -100,7 +98,6 @@ void Settings_loadDefaults() {
   strncpy(globalSettings.altclockName, "ALT", sizeof(globalSettings.altclockName));
 
   globalSettings.showBatteryPct = false;
-  globalSettings.useMetric = true;    
 }
 
 void Settings_updateDynamicSettings() {
