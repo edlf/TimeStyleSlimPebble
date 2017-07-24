@@ -88,7 +88,4 @@ extern Settings globalSettings;
 
 void Settings_init();
 void Settings_deinit();
-void Settings_loadFromStorage();
 void Settings_saveToStorage();
-void Settings_loadDefaults();
-void Settings_updateDynamicSettings();

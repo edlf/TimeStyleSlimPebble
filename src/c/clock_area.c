@@ -11,13 +11,12 @@ char time_hours[3];
 char time_minutes[3];
 
 Layer* clock_area_layer;
-FFont* hours_font;
-FFont* minutes_font;
+FFont* hours_font_pt;
+FFont* minutes_font_pt;
 
-// just allocate all the fonts at startup because i don't feel like
-// dealing with allocating and deallocating things
 FFont* avenir;
 FFont* avenir_bold;
+
 extern GRect screen_rect;
 
 // "private" functions
@@ -25,23 +24,23 @@ void update_fonts() {
   switch(globalSettings.clockFontId) {
     default:
     case FONT_SETTING_DEFAULT:
-        hours_font = avenir;
-        minutes_font = avenir;
+      hours_font_pt = avenir;
+      minutes_font_pt = avenir;
       break;
 
     case FONT_SETTING_BOLD:
-        hours_font = avenir_bold;
-        minutes_font = avenir_bold;
+      hours_font_pt = avenir_bold;
+      minutes_font_pt = avenir_bold;
       break;
 
     case FONT_SETTING_BOLD_H:
-        hours_font = avenir_bold;
-        minutes_font = avenir;
+      hours_font_pt = avenir_bold;
+      minutes_font_pt = avenir;
       break;
 
     case FONT_SETTING_BOLD_M:
-        hours_font = avenir;
-        minutes_font = avenir_bold;
+      hours_font_pt = avenir;
+      minutes_font_pt = avenir_bold;
       break;
   }
 }
@@ -90,25 +89,25 @@ void update_clock_area_layer(Layer *l, GContext* ctx) {
 
   FPoint time_pos;
   fctx_begin_fill(&fctx);
-  fctx_set_text_em_height(&fctx, hours_font, font_size);
-  fctx_set_text_em_height(&fctx, minutes_font, font_size);
+  fctx_set_text_em_height(&fctx, hours_font_pt, font_size);
+  fctx_set_text_em_height(&fctx, minutes_font_pt, font_size);
 
   // draw hours
   time_pos.x = INT_TO_FIXED(bounds.size.w / 2 + h_adjust);
   time_pos.y = INT_TO_FIXED(v_padding + v_adjust);
   fctx_set_offset(&fctx, time_pos);
-  fctx_draw_string(&fctx, time_hours, hours_font, GTextAlignmentCenter, FTextAnchorTop);
+  fctx_draw_string(&fctx, time_hours, hours_font_pt, GTextAlignmentCenter, FTextAnchorTop);
 
   //draw minutes
   time_pos.y = INT_TO_FIXED(bounds.size.h - v_padding + v_adjust);
   fctx_set_offset(&fctx, time_pos);
-  fctx_draw_string(&fctx, time_minutes, minutes_font, GTextAlignmentCenter, FTextAnchorBaseline);
+  fctx_draw_string(&fctx, time_minutes, minutes_font_pt, GTextAlignmentCenter, FTextAnchorBaseline);
   fctx_end_fill(&fctx);
 
   fctx_deinit_context(&fctx);
 }
 
-
+// "public" funcitons
 void ClockArea_init(Window* window) {
   // record the screen size, since we NEVER GET IT AGAIN
   screen_rect = layer_get_bounds(window_get_root_layer(window));
@@ -132,6 +131,7 @@ void ClockArea_init(Window* window) {
 void ClockArea_deinit() {
   layer_destroy(clock_area_layer);
 
+  // dealloc fonts
   ffont_destroy(avenir);
   ffont_destroy(avenir_bold);
 }

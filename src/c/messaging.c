@@ -26,12 +26,17 @@ void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *timeColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingColorTime);
   Tuple *bgColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingColorBG);
   Tuple *sidebarColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingColorSidebar);
+
   Tuple *sidebarPos_tuple = dict_find(iterator, MESSAGE_KEY_SettingSidebarOnLeft);
+
   Tuple *sidebarTextColor_tuple = dict_find(iterator, MESSAGE_KEY_SettingSidebarTextColor);
+
   Tuple *btVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingBluetoothVibe);
+
   Tuple *language_tuple = dict_find(iterator, MESSAGE_KEY_SettingLanguageID);
   Tuple *leadingZero_tuple = dict_find(iterator, MESSAGE_KEY_SettingShowLeadingZero);
   Tuple *batteryPct_tuple = dict_find(iterator, MESSAGE_KEY_SettingShowBatteryPct);
+
   Tuple *clockFont_tuple = dict_find(iterator, MESSAGE_KEY_SettingClockFontId);
   Tuple *hourlyVibe_tuple = dict_find(iterator, MESSAGE_KEY_SettingHourlyVibe);
   Tuple *useLargeFonts_tuple = dict_find(iterator, MESSAGE_KEY_SettingUseLargeFonts);

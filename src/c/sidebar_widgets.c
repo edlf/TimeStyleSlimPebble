@@ -21,12 +21,17 @@ GFont lgSidebarFont;
 GFont currentSidebarFont;
 GFont batteryFont;
 
-// the date, time and weather strings
+// the date and time strings
+#define DAY_NUM_SIZE  3
+#define WEEK_NUM_SIZE 3
+#define SECS_NUM_SIZE 4
+char currentDayNum[DAY_NUM_SIZE];
+char currentWeekNum[WEEK_NUM_SIZE];
+char currentSecondsNum[SECS_NUM_SIZE];
+
 char currentDayName[8];
-char currentDayNum[5];
 char currentMonth[8];
-char currentWeekNum[5];
-char currentSecondsNum[5];
+
 char altClock[8];
 
 // the widgets
@@ -118,23 +123,21 @@ int mod(int a, int b) {
 }
 
 void SidebarWidgets_updateTime(struct tm* timeInfo) {
-  printf("Current RAM: %d", heap_bytes_free());
-
   // set all the date strings
-  strftime(currentDayNum,  3, "%e", timeInfo);
+  strftime(currentDayNum, DAY_NUM_SIZE, "%e", timeInfo);
   // remove padding on date num, if needed
   if(currentDayNum[0] == ' ') {
     currentDayNum[0] = currentDayNum[1];
     currentDayNum[1] = '\0';
   }
 
-  strftime(currentWeekNum, 3, "%V", timeInfo);
+  strftime(currentWeekNum, WEEK_NUM_SIZE, "%V", timeInfo);
 
   strncpy(currentDayName, dayNames[globalSettings.languageId][timeInfo->tm_wday], sizeof(currentDayName));
   strncpy(currentMonth, monthNames[globalSettings.languageId][timeInfo->tm_mon], sizeof(currentMonth));
 
   // set the seconds string
-  strftime(currentSecondsNum, 4, ":%S", timeInfo);
+  strftime(currentSecondsNum, SECS_NUM_SIZE, ":%S", timeInfo);
 
   if(globalSettings.enableAltTimeZone) {
     // set the alternate time zone string
@@ -169,24 +172,24 @@ SidebarWidget getSidebarWidgetByType(SidebarWidgetType type) {
   switch(type) {
     case BATTERY_METER:
       return batteryMeterWidget;
-      break;
+
     case BLUETOOTH_DISCONNECT:
       return btDisconnectWidget;
-      break;
+
     case DATE:
       return dateWidget;
-      break;
+
     case ALT_TIME_ZONE:
       return altTimeWidget;
-      break;
+
     case SECONDS:
       return secondsWidget;
-      break;
+
     case WEEK_NUMBER:
       return weekNumberWidget;
+
     default:
       return emptyWidget;
-      break;
   }
 }
 
@@ -200,7 +203,6 @@ void EmptyWidget_draw(GContext* ctx, int yPosition) {
 }
 
 /********** functions for the battery meter widget **********/
-
 int BatteryMeter_getHeight() {
   BatteryChargeState chargeState = battery_state_service_peek();
 
@@ -278,7 +280,6 @@ void BatteryMeter_draw(GContext* ctx, int yPosition) {
 }
 
 /********** current date widget **********/
-
 int DateWidget_getHeight() {
   if(globalSettings.useLargeFonts) {
     return (SidebarWidgets_useCompactMode) ? 42 : 62;
@@ -348,11 +349,9 @@ void DateWidget_draw(GContext* ctx, int yPosition) {
                        NULL);
   }
 
-
 }
 
 /***** Bluetooth Disconnection Widget *****/
-
 int BTDisconnect_getHeight() {
   return 22;
 }
@@ -367,7 +366,6 @@ void BTDisconnect_draw(GContext* ctx, int yPosition) {
 }
 
 /***** Week Number Widget *****/
-
 int WeekNumber_getHeight() {
   return (globalSettings.useLargeFonts) ? 29 : 26;
 }
@@ -405,7 +403,6 @@ void WeekNumber_draw(GContext* ctx, int yPosition) {
 }
 
 /***** Seconds Widget *****/
-
 int Seconds_getHeight() {
   return 14;
 }
@@ -423,7 +420,6 @@ void Seconds_draw(GContext* ctx, int yPosition) {
 }
 
 /***** Alternate Time Zone Widget *****/
-
 int AltTime_getHeight() {
   return (globalSettings.useLargeFonts) ? 29 : 26;
 }
